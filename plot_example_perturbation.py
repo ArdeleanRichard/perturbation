@@ -1,7 +1,7 @@
 import numpy as np
 
 from common.bicubic import bicubic
-from common.correlation import get_correlated_sets
+from common.correlation import get_correlated_sets, get_correlated_sets2
 from data_parsing.SsdParser import SsdParser
 from frequency_domain.superlet.apply_slt import generate_spectrogram, plot_spectrogram
 from constants import RUNS, THRESHOLD, PLOT_PATH, ncyc, ord, CHANNEL, DATASET_PATH
@@ -16,11 +16,11 @@ labels = np.array(labels_by_channels[CHANNEL])
 slt_features = []
 slt_features_vector = []
 
-for spike in data[:3]:
+for spike in data:
     spectrogram = generate_spectrogram(spike, ncyc, ord, None)
 
     interp_spectrogram = bicubic(img=np.expand_dims(spectrogram, axis=2), ratio=0.25, a=-1 / 2).squeeze()
-    plot_spectrogram(interp_spectrogram, spike, sampling_frequency=32000, fspace=(300, 7000, 50), label=None, time_measure='samples')
+    # plot_spectrogram(interp_spectrogram, spike, sampling_frequency=32000, fspace=(300, 7000, 50), label=None, time_measure='samples')
     slt_features.append(interp_spectrogram)
     slt_features_vector.append(interp_spectrogram.flatten())
 
@@ -28,23 +28,35 @@ for spike in data[:3]:
 slt_features = np.array(slt_features)
 print(slt_features.shape)
 slt_features_vector = np.array(slt_features_vector)
-correlated_sets = get_correlated_sets(slt_features_vector, threshold=THRESHOLD, show=False, plot_path=PLOT_PATH, filename=f"matrice_de_corelatie_C{CHANNEL}")
-
-print(correlated_sets)
 
 
-def find_max_list_idx(list):
-    list_len = [len(i) for i in list]
-    return np.argmin(np.array(list_len))
+THRESHOLD = 0.95
 
+print("-------CLASSIC-------")
+correlated_sets = get_correlated_sets(slt_features_vector, threshold=THRESHOLD, show=False, plot_path="", filename=f"")
+for correlated_set in correlated_sets:
+    print(correlated_set)
 
-id = find_max_list_idx(correlated_sets)
+print("------MY WAY-------")
+correlated_sets = get_correlated_sets2(slt_features_vector, threshold=THRESHOLD, show=False, plot_path="", filename=f"")
+for correlated_set in correlated_sets:
+    print(correlated_set)
 
-
-new_features = permute_columns(slt_features_vector, column_set=correlated_sets[15])
-
-print(new_features.shape)
-
-for vec, spike in zip(new_features, data[:3]):
-    hmm = np.reshape(vec, (12, 14))
-    plot_spectrogram(hmm, spike, sampling_frequency=32000, fspace=(300, 7000, 50), label=None, time_measure='samples')
+# def find_max_list_idx(list):
+#     list_len = [len(i) for i in list]
+#     return np.argmin(np.array(list_len))
+#
+#
+# id = find_max_list_idx(correlated_sets)
+#
+#
+# # new_features = permute_columns(slt_features_vector, column_set=correlated_sets[15])
+#
+# correlated_set = np.array(list(range(9)))
+# new_features = permute_columns(slt_features_vector, column_set=correlated_set)
+#
+# print(new_features.shape)
+#
+# for vec, spike in zip(new_features, data[:3]):
+#     hmm = np.reshape(vec, (12, 14))
+#     plot_spectrogram(hmm, spike, sampling_frequency=32000, fspace=(300, 7000, 50), label=None, time_measure='samples')

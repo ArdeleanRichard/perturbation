@@ -42,3 +42,36 @@ def get_correlated_sets(data, threshold, show=True, plot_path=None, filename=Non
 
     return correlated_sets
 
+
+def get_correlated_sets2(data, threshold, show=False, plot_path=None, filename=None):
+    matrix = get_correlation_matrix(data, show=True, plot_path=plot_path, filename=filename)
+    correlated_sets = find_correlated_sets_my_way(matrix, threshold=threshold)
+
+    if show == True:
+        for i in range(0, len(correlated_sets)):
+            print(correlated_sets[i])
+
+    return correlated_sets
+
+
+def find_correlated_sets_my_way(corr_matrix, threshold):
+    groups = []
+    for i in range(len(corr_matrix)):
+        # groups[f'gr{i}'] = [i]
+        groups.append([i])
+
+    for i in range(len(corr_matrix)):
+        for j in range(i + 1, len(corr_matrix)):
+            if corr_matrix[i][j] > threshold:
+                for group1 in groups:
+                    if i in group1:
+                        for group2 in groups:
+                            if j in group2:
+                                if group1 == group2:
+                                    break
+                                # print(group1, group2)
+                                group1.extend(group2)
+                                groups.remove(group2)
+                                break
+                        break
+    return groups

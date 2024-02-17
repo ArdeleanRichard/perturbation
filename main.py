@@ -119,8 +119,8 @@ def perturbation(data, labels, ord, ncyc):
         delta_accs.append(delta_acc)
 
     # plot bar
-    bar_plot(accs_pert_data, [acc_orig_data] * len(correlated_sets), ord, ncyc, title="Accuracy", suptitle="accs")
     bar_plot(f1s_pert_data, [f1_orig_data] * len(correlated_sets), ord, ncyc, title="F1 score", suptitle="f1s")
+    bar_plot(accs_pert_data, [acc_orig_data] * len(correlated_sets), ord, ncyc, title="Accuracy", suptitle="accs")
 
     delta_f1s_reshaped = np.array(delta_f1s).reshape((slt_features.shape[1], slt_features.shape[2]))
     delta_accs_reshaped = np.array(delta_accs).reshape((slt_features.shape[1], slt_features.shape[2]))
@@ -148,10 +148,9 @@ def run_m_data():
 
 
 def run_k_data():
-    DATASET_PATH = './data/Kc28/'
     parser = SsdParser(DATASET_PATH)
 
-    data, labels, intracellular_labels = parser.read_kampff_channel('Raw')
+    data, labels, intracellular_labels = parser.read_kampff_channel(CHANNEL)
 
     perturbation(data, intracellular_labels, ord=2, ncyc=1.5)
 
